@@ -1,0 +1,35 @@
+[
+  {
+    "value": {
+      "background-color": "green"
+    },
+    "label": "绿色背景",
+    "tips": "将元素的背景色改为绿色",
+    "class_name": "bg-color-green"
+  },
+  {
+    "value": {
+      "width": "20px"
+    },
+    "label": "宽度20px",
+    "tips": "将元素的宽度改为20px",
+    "class_name": "width-20px"
+  },
+  {
+    "value": {
+      "display": ["-webkit-box","-webkit-flex", "-ms-flexbox", "flex"]
+    },
+    "label": "flex横向布局",
+    "tips": "flex横向布局-这个演示了相同键名如何添加浏览器兼容",
+    "class_name": "flex-h"
+  },
+  {
+    "value": {
+      "display": "flex",
+      "flex-direction": "column"
+    },
+    "label": "flex纵向布局",
+    "tips": "flex纵向布局",
+    "class_name": "flex-v"
+  }
+]

@@ -1,0 +1,41 @@
+{
+	"info": {
+		"id": {
+			"title": "id",
+			"query": false
+		},
+		"language": {
+			"title": "语言",
+			"query": true
+		},
+		"percentage": {
+			"title": "百分比",
+			"query": false
+		},
+		"year": {
+			"title": "统计年份",
+			"query": false
+		}
+	},
+	"data": [{
+		"id": "1",
+		"language": "javascript",
+		"percentage": "64.96%",
+		"year": "2022"
+	}, {
+		"id": "2",
+		"language": "html",
+		"percentage": "56.07%",
+		"year": "2022"
+	}, {
+		"id": "3",
+		"language": "python",
+		"percentage": "48.24%",
+		"year": "2022"
+	}, {
+		"id": "4",
+		"language": "sql",
+		"percentage": "47.08",
+		"year": "2022"
+	}]
+}

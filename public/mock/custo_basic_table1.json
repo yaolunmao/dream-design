@@ -1,0 +1,41 @@
+{
+	"info": {
+		"id": {
+			"title": "id",
+			"query": false
+		},
+		"name": {
+			"title": "姓名",
+			"query": true
+		},
+		"address": {
+			"title": "地址",
+			"query": true
+		},
+		"date": {
+			"title": "创建日期",
+			"query": false
+		}
+	},
+	"data": [{
+		"id": "1",
+		"date": "2022-03-03",
+		"name": "张伟",
+		"address": "长春市宽城区"
+	}, {
+		"id": "2",
+		"date": "2022-03-02",
+		"name": "刘磊",
+		"address": "长春市绿园区"
+	}, {
+		"id": "3",
+		"date": "2022-03-04",
+		"name": "张三",
+		"address": "长春市北湖新区"
+	}, {
+		"id": "4",
+		"date": "2022-03-01",
+		"name": "刘伟",
+		"address": "长春市净月区"
+	}]
+}

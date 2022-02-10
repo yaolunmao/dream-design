@@ -1,0 +1,48 @@
+{
+  "name": "dream-design",
+  "version": "0.0.0",
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/dream-design.es.ts",
+  "main": "./dist/dream-design.umd.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/dream-design.es.ts",
+      "require": "./dist/dream-design.umd.ts"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite --port 3000",
+    "build": "vue-tsc --noEmit && vite build",
+    "lib": "vue-tsc --noEmit && vite build --config vite.lib.config.ts",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^0.2.4",
+    "@types/node": "^17.0.10",
+    "ant-design-vue": "^2.2.8",
+    "axios": "^0.25.0",
+    "echarts": "^5.3.0",
+    "element-plus": "^2.0.0",
+    "less": "^4.1.2",
+    "monaco-editor": "^0.31.1",
+    "vue": "^3.2.25",
+    "vue-echarts": "^6.0.2",
+    "vue-router": "4",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.0.0",
+    "@vue/compiler-sfc": "^3.2.25",
+    "typescript": "^4.4.4",
+    "vite": "^2.7.2",
+    "vite-plugin-monaco-editor": "^1.0.10",
+    "vite-plugin-svg-icons": "^1.1.0",
+    "vue-tsc": "^0.29.8"
+  }
+}

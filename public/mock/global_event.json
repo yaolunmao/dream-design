@@ -1,0 +1,20 @@
+[
+    {
+        "value":"alert(111)",
+        "label": "弹出111",
+        "tips": "会弹出数字111的提示",
+        "event_name": "alert_111"
+    },
+    {
+        "value":"alert('abc')",
+        "label": "弹出abc",
+        "tips": "会弹出字符串abc的提示",
+        "event_name": "alert_abc"
+    },
+    {
+        "value":"alert(\"转义测试\")",
+        "label": "弹出转义测试",
+        "tips": "会弹出字符串“转义测试”的提示",
+        "event_name": "alert_escape"
+    }
+]
