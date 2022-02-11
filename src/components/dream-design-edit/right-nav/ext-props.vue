@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, PropType, ref } from 'vue';
+import { computed, PropType, ref, watchEffect } from 'vue';
 import { IDomExtProps, IDoneComponent } from '../../../model/model';
 import { ElFormItem, ElInputNumber, ElMessageBox } from "element-plus";
 import { objectDeepClone, randomString } from '../../../utils';
@@ -14,17 +14,10 @@ const props = defineProps({
         default: true
     }
 });
-const children_length = computed<number>(
-    {
-        get() {
-            return props.selectComponentInfo.childrens.length
-        },
-        set(val) {
-            return val;
-        },
-    }
-);
-const children_length_ref=ref(children_length.value);
+const children_length_ref=ref(0);
+watchEffect(()=>{
+    children_length_ref.value=props.selectComponentInfo.childrens.length
+})
 const handleChange = (value: number) => {
     if (value > props.selectComponentInfo.childrens.length) {
         props.selectComponentInfo.childrens.push(objectDeepClone({ ...props.selectComponentInfo.childrens[0], id: props.selectComponentInfo.childrens[0].tag + '-' + randomString(), childrens: [] }));
