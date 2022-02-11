@@ -132,7 +132,7 @@ watchEffect(() => {
     >
         <draggable
             v-model="props.leftDragDomInfo.childrens"
-            :class="`${props.leftDragDomInfo.childrens.length > 0 && !props.previewMode ? '' : 'default-slot'} ${props.leftDragDomInfo.ClearStyle ? 'no-dom' : ''}`"
+            :class="`${props.leftDragDomInfo.childrens.length > 0 || props.previewMode ? '' : 'default-slot'} ${props.leftDragDomInfo.ClearStyle ? 'no-dom' : ''}`"
             :group="props.leftDragDomInfo.canAllowTo ? 'design-group' : 'no-group'"
             item-key="id"
             handle=".can-move"
