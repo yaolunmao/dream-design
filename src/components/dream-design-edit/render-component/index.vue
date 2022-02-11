@@ -4,7 +4,6 @@ import { computed, inject, isReactive, PropType, reactive, Ref, ref, watch, watc
 import draggable from 'vuedraggable/src/vuedraggable';
 // import { useStore } from 'vuex';
 import { IConfigComponentItemProps, IDoneComponent, IGloablCss, IGloablEvent } from '../../../model/model';
-import { ComponentImport } from "../../../config-center";
 import { ElButton } from "element-plus";
 import { Delete, CopyDocument } from '@element-plus/icons-vue';
 //引入echart饼图和柱状图 优点是可以通过修改option就变化图表，非常灵活，缺点是数据量过大，图表变的不易控制
@@ -121,7 +120,7 @@ watchEffect(() => {
 </script>
 <template>
     <component
-        :is="ComponentImport[props.leftDragDomInfo.tag]"
+        :is="props.leftDragDomInfo.tag"
         v-model="props.leftDragDomInfo.v_model"
         v-on="event_attr"
         v-if="props.leftDragDomInfo.slots"
@@ -160,7 +159,7 @@ watchEffect(() => {
             v-model="props.leftDragDomInfo.v_model"
             v-bind="component_item_props"
             v-on="event_attr"
-            :is="ComponentImport[props.leftDragDomInfo.tag]"
+            :is="props.leftDragDomInfo.tag"
             :style="css_style"
             v-if="props.leftDragDomInfo.tagSlots.enable"
         >{{ props.leftDragDomInfo.tagSlots.val }}</component>
@@ -169,7 +168,7 @@ watchEffect(() => {
             v-model="props.leftDragDomInfo.v_model"
             v-bind="component_item_props"
             v-on="event_attr"
-            :is="ComponentImport[props.leftDragDomInfo.tag]"
+            :is="props.leftDragDomInfo.tag"
             :style="css_style"
         ></component>
         <div

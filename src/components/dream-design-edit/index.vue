@@ -1,6 +1,6 @@
 <!-- 编辑器组件 -->
 <script setup lang="ts">
-import { ref, provide, reactive, readonly, pushScopeId } from 'vue';
+import { ref, provide, reactive, readonly, pushScopeId, getCurrentInstance } from 'vue';
 import "element-plus/dist/index.css";
 import 'ant-design-vue/dist/antd.css';
 import LeftNav from './left-nav/index.vue';
@@ -13,6 +13,16 @@ import { ElContainer, ElHeader, ElAside, ElFooter, ElMain, ElScrollbar, ElLink, 
 import 'virtual:svg-icons-register';
 import RenderComponent from './render-component/index.vue';
 import { objectDeepClone, randomString } from '../../utils';
+import * as Icons from "@element-plus/icons-vue";
+import { ComponentImport } from "../../config-center";
+const instance = getCurrentInstance();
+Object.keys(ComponentImport).forEach((key) => {
+  instance?.appContext.app.component(key,ComponentImport[key]);
+});
+// 注册element所有icon
+Object.keys(Icons).forEach((key) => {
+  instance?.appContext.app.component(key,(Icons as any)[key]);
+});
 const doneComponents = ref<IDoneComponent[]>([]);
 let select_component_info = ref({});//选中的组件
 const changeSelectedComponentInfo = (val: IDoneComponent) => {
