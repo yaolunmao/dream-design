@@ -96,7 +96,7 @@ const param_tabledata = ref<IParamEdit[]>([]);
             </el-header>
             <el-container class="middle">
                 <el-aside class="side-nav" :class="leftBarFoldStatus ? 'show-nav' : 'hide-nav'">
-                    <left-nav class="content-left"></left-nav>
+                    <left-nav :doneComponents="doneComponents" class="content-left"></left-nav>
                 </el-aside>
                 <el-main class="middle main">
                     <el-scrollbar>
