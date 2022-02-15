@@ -204,6 +204,7 @@ const D_ElFormItem: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 export const D_ElFormContainer: IConfigComponentItem = {

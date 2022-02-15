@@ -6,7 +6,7 @@
  * @export
  * @interface IConfigComponentItem
  */
-export interface IConfigComponentItem {
+ export interface IConfigComponentItem {
   title: string;
   icon: string;
   domInfo: IConfigComponentItemInfo;
@@ -38,6 +38,7 @@ export interface IConfigComponentItemInfo {
   classAttr?: IClassAttr;
   eventAttr?: IEventAttr;
   v_model?: "";
+  compatibility?:boolean; //有些组件无法拖动可设置兼容性 会在组件上层包裹一层div
 }
 export interface IConfigComponentItemProps {
   [key: string]: {

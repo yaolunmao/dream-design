@@ -71,6 +71,7 @@ const D_EchartsBasicLine: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 const D_EchartsStackedLine: IConfigComponentItem = {
@@ -157,6 +158,7 @@ const D_EchartsStackedLine: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 export const EchartsLineGroup: IConfigComponentGroup = {

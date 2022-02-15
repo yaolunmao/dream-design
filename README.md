@@ -34,6 +34,57 @@ design的d要小写，轻量简单才是我想要的
 
 ![](./readme_images/Dreamdesign按钮属性.png)
 
+### 与编程一致的dom生成
+
+编写如下代码
+
+```vue
+<el-row>
+    <el-col>
+        <el-button>按钮一</el-button>
+        <el-button>按钮二</el-button>
+    </el-col>
+</el-row>
+```
+
+运行项目审查元素，观察网页生成的dom元素为
+
+```html
+<div class="el-row" data-v-53f231d2="">
+	<div class="el-col el-col-24" data-v-53f231d2="">
+		<button class="el-button el-button--default" type="button" data-v-53f231d2="">
+			<!--v-if-->
+				<span class="">按钮一</span>
+		</button>
+		<button class="el-button el-button--default" type="button" data-v-53f231d2="">
+			<!--v-if-->
+				<span class="">按钮二</span>
+		</button>
+	</div>
+</div>
+```
+
+使用Dreamdesign拖动一个单列栅格和两个按钮
+
+审查元素，观察网页生成的dom元素为
+
+```html
+<div class="el-row canvas-component default-slot  not-move" data-v-0edba2b9="" data-v-53f231d2="">
+    <div class="el-col el-col-24 canvas-component default-slot  not-move" data-draggable="true" data-v-0edba2b9="">
+        <button class="el-button el-button--primary el-button--default canvas-component not-move" type="button" data-draggable="true" data-v-0edba2b9="" style="--el-button-bg-color:#409eff; --el-button-border-color:#409eff; --el-button-hover-bg-color:rgb(102, 177, 255); --el-button-hover-border-color:rgb(102, 177, 255); --el-button-active-bg-color:rgb(58, 142, 230); --el-button-active-border-color:rgb(58, 142, 230);">
+            <!--v-if-->
+            <span class="">el按钮</span>
+        </button>
+        <button class="el-button el-button--primary el-button--default canvas-component not-move" type="button" data-draggable="true" data-v-0edba2b9="" style="--el-button-bg-color:#409eff; --el-button-border-color:#409eff; --el-button-hover-bg-color:rgb(102, 177, 255); --el-button-hover-border-color:rgb(102, 177, 255); --el-button-active-bg-color:rgb(58, 142, 230); --el-button-active-border-color:rgb(58, 142, 230);">
+            <!--v-if-->
+            <span class="">el按钮</span>
+        </button>
+    </div>
+</div>
+```
+
+
+
 ### 设置面板预定义多种格式
 
 除去基本的输入、开关、选择器、单选等，还封装了对象编辑器

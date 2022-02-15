@@ -38,6 +38,10 @@ export const D_ElButton: IConfigComponentItem = {
         tips: "类型",
         options: [
           {
+            value: "default",
+            label: "默认按钮",
+          },
+          {
             value: "primary",
             label: "主要按钮",
           },

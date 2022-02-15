@@ -223,5 +223,6 @@ export const D_ElDatePicker: IConfigComponentItem = {
       },
     },
     childrens: [],
+    compatibility:true
   },
 };

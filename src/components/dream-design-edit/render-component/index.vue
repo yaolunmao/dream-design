@@ -1,10 +1,12 @@
 <!-- 将json渲染为页面 -->
 <script lang="ts" setup>
-import { computed, inject, isReactive, PropType, reactive, Ref, ref, watch, watchEffect } from 'vue';
+import { computed, getCurrentInstance, inject, isReactive, PropType, reactive, Ref, ref, watch, watchEffect } from 'vue';
+import { ElCascader } from "element-plus";
+import { ElRow } from "element-plus";
 import draggable from 'vuedraggable/src/vuedraggable';
 // import { useStore } from 'vuex';
-import { IConfigComponentItemProps, IDoneComponent, IGloablCss, IGloablEvent } from '../../../model/model';
-import { ElButton } from "element-plus";
+import { ERightToolAttrType, IConfigComponentItemProps, IDoneComponent, IGloablCss, IGloablEvent } from '../../../model/model';
+import { ElButton, ElButtonGroup } from "element-plus";
 import { Delete, CopyDocument } from '@element-plus/icons-vue';
 //引入echart饼图和柱状图 优点是可以通过修改option就变化图表，非常灵活，缺点是数据量过大，图表变的不易控制
 import { use } from "echarts/core";
@@ -39,20 +41,30 @@ const props = defineProps({
         default: false
     }
 });
+const emit = defineEmits(['contextmenuEvent']);
 const select_component_info = inject<IDoneComponent>('select_component_info');
 const changeSelectedComponentInfo = inject<(select_component: IDoneComponent) => void>('changeSelectedComponentInfo');
-const deleteSelectCompont = inject<(evt: MouseEvent) => any>('deleteSelectCompont');
-const copySelectCompont = inject<(evt: MouseEvent) => any>('copySelectCompont');
+// const deleteSelectCompont = inject<(evt: MouseEvent) => any>('deleteSelectCompont');
+// const copySelectCompont = inject<(evt: MouseEvent) => any>('copySelectCompont');
+// const store = useStore();
 const selectedComponentEvent = (select_component: IDoneComponent) => {
+    if (props.previewMode) {
+        return;
+    }
+    // store.dispatch('changeSelectedComponentInfo', { ...select_component });
+    if (changeSelectedComponentInfo != undefined) {
+        changeSelectedComponentInfo(select_component);
+    }
+};
+const contextmenuEvent = (select_component: IDoneComponent, e: MouseEvent) => {
     if (props.previewMode) {
         return;
     }
     if (changeSelectedComponentInfo != undefined) {
         changeSelectedComponentInfo(select_component);
+        emit('contextmenuEvent', e);
     }
-
-
-};
+}
 const dynamicEvent = (params: string[], event_str: string) => {
     try {
         if (params?.length > 0) {
@@ -69,13 +81,16 @@ const dynamicEvent = (params: string[], event_str: string) => {
 }
 const css_style = ref<object[]>([]);
 const event_attr = ref<object>({});
+// watch(()=>store.getters.theModifiedSelectedComponentInfo, (new_val:IStoreDoneComponent) => {
+
+// });
 //跟据组件设置 生成v-bind对象
 const component_item_props: IConfigComponentItemProps = reactive({});
 watchEffect(() => {
     //取出所有的key
     const any_key = Object.keys(props.leftDragDomInfo.props);
     any_key.forEach(f => {
-            component_item_props[f] = props.leftDragDomInfo.props[f].default;
+        component_item_props[f] = props.leftDragDomInfo.props[f].default;
     });
     //处理全局css和自定义css
     const temp_css: object[] = [];
@@ -92,28 +107,34 @@ watchEffect(() => {
     }
     css_style.value = temp_css;
     // 处理组件事件
+
+    // for (let _key in props.leftDragDomInfo.customEventAttr) {
+    //     event_attr.value = { ...event_attr.value, ...{ [_key]: dynamicEvent(props.leftDragDomInfo.customEventAttr[_key]) } }
+    // }
     event_attr.value = {};
-    for (let _key in props.leftDragDomInfo.eventAttr) {
-        const this_event_attr = props.leftDragDomInfo.eventAttr;
-        if (!this_event_attr[_key].custom) {
-            //取出全局定义函数
-            const global_event_value = global_event_default?.value.filter(f => this_event_attr[_key].list.includes(f.event_name)).map(m => m.value);
-            const code_str = global_event_value?.join(';');
-            if (code_str) {
+    if (props.previewMode) {
+        for (let _key in props.leftDragDomInfo.eventAttr) {
+            const this_event_attr = props.leftDragDomInfo.eventAttr;
+            if (!this_event_attr[_key].custom) {
+                //取出全局定义函数
+                const global_event_value = global_event_default?.value.filter(f => this_event_attr[_key].list.includes(f.event_name)).map(m => m.value);
+                const code_str = global_event_value?.join(';');
+                if (code_str) {
+                    event_attr.value = {
+                        ...event_attr.value, ...{
+                            [_key]: dynamicEvent(this_event_attr[_key].anonymous_params, code_str)
+                        }
+                    };
+                }
+            }
+            else {
+                //取出自定义函数
                 event_attr.value = {
                     ...event_attr.value, ...{
-                        [_key]: dynamicEvent(this_event_attr[_key].anonymous_params, code_str)
+                        [_key]: dynamicEvent(this_event_attr[_key].anonymous_params, this_event_attr[_key].val)
                     }
                 };
             }
-        }
-        else {
-            //取出自定义函数
-            event_attr.value = {
-                ...event_attr.value, ...{
-                    [_key]: dynamicEvent(this_event_attr[_key].anonymous_params, this_event_attr[_key].val)
-                }
-            };
         }
     }
 });
@@ -123,78 +144,104 @@ watchEffect(() => {
         :is="props.leftDragDomInfo.tag"
         v-model="props.leftDragDomInfo.v_model"
         v-on="event_attr"
-        v-if="props.leftDragDomInfo.slots"
+        v-if="props.leftDragDomInfo.compatibility && props.leftDragDomInfo.slots"
         v-bind="component_item_props"
         class="canvas-component"
         :class="`${!props.previewMode ? 'container' : ''} ${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
         @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
+        @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
         :style="css_style"
     >
         <draggable
             v-model="props.leftDragDomInfo.childrens"
+            class="compatibility"
             :class="`${props.leftDragDomInfo.childrens.length > 0 || props.previewMode ? '' : 'default-slot'} ${props.leftDragDomInfo.ClearStyle ? 'no-dom' : ''}`"
-            :group="props.leftDragDomInfo.canAllowTo ? 'design-group' : 'no-group'"
+            :group="props.leftDragDomInfo.canAllowTo ? 'design-group' : `${props.leftDragDomInfo.id}-no-group`"
             item-key="id"
             handle=".can-move"
             ghost-class="ghost"
         >
             <template #item="{ element }">
-                <index
-                    :class="`${element.canMove && !props.previewMode ? 'can-move' : 'not-move'}`"
-                    :leftDragDomInfo="element"
-                    :preview-mode="props.previewMode"
-                ></index>
+                <index :leftDragDomInfo="element" :preview-mode="props.previewMode" @contextmenuEvent="(e:MouseEvent) => emit('contextmenuEvent',e)"></index>
             </template>
         </draggable>
         {{ props.leftDragDomInfo.tagSlots.enable ? props.leftDragDomInfo.tagSlots.val : null }}
     </component>
-    <div
-        style="position: relative;"
-        v-else
+    <draggable
+        v-on="event_attr"
+        :list="props.leftDragDomInfo.childrens"
+        :component-data="component_item_props"
         class="canvas-component"
-        :class="`${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''} ${props.leftDragDomInfo.ClearStyle ? 'no-dom' : ''}`"
         @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
+        @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
+        v-else-if="!props.leftDragDomInfo.compatibility && props.leftDragDomInfo.slots"
+        :class="`${props.leftDragDomInfo.childrens.length > 0 && !props.previewMode ? '' : 'default-slot'} ${!props.previewMode ? 'container' : ''} ${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
+        :group="props.leftDragDomInfo.canAllowTo ? 'design-group' : props.leftDragDomInfo.id"
+        item-key="id"
+        ghost-class="ghost"
+        :tag="props.leftDragDomInfo.tag"
+        :style="css_style"
+    >
+        <template #item="{ element }">
+            <index :leftDragDomInfo="element" :preview-mode="props.previewMode" @contextmenuEvent="(e:MouseEvent) => emit('contextmenuEvent',e)"></index>
+        </template>
+    </draggable>
+    <div
+        v-else-if="props.leftDragDomInfo.compatibility && !props.leftDragDomInfo.slots && props.leftDragDomInfo.tagSlots.enable"
+        @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
+        @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
+        class="compatibility"
+        :class="`${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
     >
         <component
+            class="canvas-component"
             v-model="props.leftDragDomInfo.v_model"
             v-bind="component_item_props"
             v-on="event_attr"
             :is="props.leftDragDomInfo.tag"
             :style="css_style"
-            v-if="props.leftDragDomInfo.tagSlots.enable"
         >{{ props.leftDragDomInfo.tagSlots.val }}</component>
+    </div>
+    <div
+        v-else-if="props.leftDragDomInfo.compatibility && !props.leftDragDomInfo.slots && !props.leftDragDomInfo.tagSlots.enable"
+        class="compatibility"
+        :class="`${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
+        @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
+        @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
+    >
         <component
-            v-else
+            class="canvas-component"
             v-model="props.leftDragDomInfo.v_model"
             v-bind="component_item_props"
             v-on="event_attr"
             :is="props.leftDragDomInfo.tag"
             :style="css_style"
         ></component>
-        <div
-            class="select-tool"
-            v-if="select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode && select_component_info?.canMove"
-        >
-            <el-button
-                v-if="copySelectCompont"
-                @click="copySelectCompont"
-                style="margin-left: 2px;"
-                type="primary"
-                :icon="CopyDocument"
-                circle
-                title="复制"
-            ></el-button>
-            <el-button
-                v-if="deleteSelectCompont"
-                style="margin-left: 2px;"
-                type="primary"
-                :icon="Delete"
-                circle
-                title="删除"
-                @click="deleteSelectCompont"
-            ></el-button>
-        </div>
     </div>
+    <component
+        v-else-if="!props.leftDragDomInfo.slots && props.leftDragDomInfo.tagSlots.enable"
+        class="canvas-component"
+        :class="`${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
+        @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
+        @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
+        v-model="props.leftDragDomInfo.v_model"
+        v-bind="component_item_props"
+        v-on="event_attr"
+        :is="props.leftDragDomInfo.tag"
+        :style="css_style"
+    >{{ props.leftDragDomInfo.tagSlots.val }}</component>
+    <component
+        v-else
+        class="canvas-component"
+        :class="`${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
+        @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
+        @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
+        v-model="props.leftDragDomInfo.v_model"
+        v-bind="component_item_props"
+        v-on="event_attr"
+        :is="props.leftDragDomInfo.tag"
+        :style="css_style"
+    ></component>
 </template>
 <style scoped lang="less">
 @import "../../../assets/global.module";
@@ -223,10 +270,12 @@ watchEffect(() => {
     cursor: default;
 }
 .canvas-component {
-    margin-bottom: 5px;
     cursor: pointer;
 }
 .select-component {
     background-color: rgb(219, 238, 255);
+}
+.compatibility {
+    display: inline-block;
 }
 </style>

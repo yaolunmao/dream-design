@@ -90,5 +90,6 @@ export const D_EchartsCustom: IConfigComponentItem = {
       global: [],
     },
     childrens: [],
+    compatibility:true
   },
 };
