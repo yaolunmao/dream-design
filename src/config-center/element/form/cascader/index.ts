@@ -219,6 +219,7 @@ export const D_ElCascader: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true,
     eventAttr:{
       change:{
         custom:true,

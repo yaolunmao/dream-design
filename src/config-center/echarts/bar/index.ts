@@ -57,6 +57,7 @@ const D_EchartsBasicBar: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 const D_EchartsHorizontalBar: IConfigComponentItem = {
@@ -117,6 +118,7 @@ const D_EchartsHorizontalBar: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 export const EchartsBarGroup: IConfigComponentGroup = {

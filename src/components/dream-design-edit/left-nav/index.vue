@@ -7,24 +7,13 @@
         <el-option v-for="(item, key) in configCenter" :key="key" :label="key" :value="item"></el-option>
       </el-select>
     </div>
+
     <el-collapse v-model="activeNames" @change="handleChange" v-for="item of config_center">
       <el-collapse-item :name="item.groupType">
         <template #title>
           <div style="font-weight: bolder;">{{ item.title }}</div>
         </template>
-        <div class="component-group flex-h flex-warp" ref="SortLeftRef">
-          <div
-            v-for="element in item.list"
-            @mousedown="setSelectTag(element)"
-            class="flex-h component-item flex-v-center"
-          >
-            <el-icon size="20" style="margin-left: 10px;">
-              <svg-icon :name="element.icon"></svg-icon>
-            </el-icon>
-            <div style="margin-left: 5px;">{{ element.title }}</div>
-          </div>
-        </div>
-        <!-- <draggable
+        <draggable
           class="component-group flex-h flex-warp"
           v-model="item.list"
           :group="{ name: 'design-group', pull: 'clone', put: false }"
@@ -42,76 +31,27 @@
               </div>
             </div>
           </template>
-        </draggable>-->
+        </draggable>
       </el-collapse-item>
     </el-collapse>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, PropType, ref } from 'vue';
+import { ref } from 'vue';
 import { configCenter } from '../../../config-center';
 import draggable from 'vuedraggable/src/vuedraggable';
-import Sortable from 'sortablejs'
 import { IConfigComponentGroup, IConfigComponentItem, IConfigComponentItemInfo, IDoneComponent } from '../../../model/model';
 import { ElSelect, ElOption, ElCollapse, ElCollapseItem, ElIcon } from "element-plus";
 import SvgIcon from "../../svg-icon/index.vue";
 import { objectDeepClone, randomString } from '../../../utils';
-import { env } from 'process';
-import { EchartsLineGroup } from '../../../config-center/echarts/line';
 // import { useStore } from 'vuex';
 // import { IStoreDoneComponent } from '../../store/model';
-const SortLeftRef = ref<HTMLElement>();
 const select_lib = ref('element');
 const config_center = ref<IConfigComponentGroup[]>(configCenter.element);
 // const store = useStore();
 // store.dispatch('changeConfigComponentGroup', config_center.value);
-const activeNames = ref(['layout', 'basic', 'data', 'form', 'line', 'bar', 'pie', 'echartscustom']);
-const props = defineProps({
-  doneComponents: {
-    type: Object as PropType<IDoneComponent[]>,
-    default: []
-  }
-});
-const selectElement = ref<IDoneComponent>();
-const setSelectTag = (element) => {
-  console.log("选中的", element);
-  selectElement.value = element;
-}
-onMounted(() => {
-  const componentGroup = document.querySelectorAll(".component-item");
-  componentGroup.forEach(component => {
-    new Sortable(component.parentNode, {
-      group: { name: 'design-group', pull: 'clone', put: false },
-      sort: false,
-      animation: 150,
-      ghostClass: 'ghost',
-      draggable: '.component-item',
-      removeCloneOnHide: true,
-      onEnd: function (evt: CustomEvent) {
-        if (evt.to.className == 'dragArea canvas-main') {
-          const { childrens, ...component_info } = selectElement.value.domInfo;
-          const doneComponent: IDoneComponent = {
-            id: selectElement.value.domInfo.tag + '-' + randomString(),
-            childrens: handleConfigChildrens(selectElement.value.domInfo.childrens),
-            ...component_info
-          }
-          props.doneComponents.push({
-            ...objectDeepClone(doneComponent)
-          })
-          evt.testadd = {
-            ...objectDeepClone(doneComponent)
-          };
-          evt.item.remove();
-        }
-
-
-        console.log(evt, 'end');
-      },
-    });
-  });
-
-})
+const activeNames = ref(['layout', 'basic','data','form','line','bar','pie','echartscustom'])
 const handleChange = (val: string[]) => {
   // console.log(val)
 }

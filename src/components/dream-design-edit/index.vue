@@ -17,11 +17,11 @@ import * as Icons from "@element-plus/icons-vue";
 import { ComponentImport } from "../../config-center";
 const instance = getCurrentInstance();
 Object.keys(ComponentImport).forEach((key) => {
-  instance?.appContext.app.component(key,ComponentImport[key]);
+    instance?.appContext.app.component(key, ComponentImport[key]);
 });
 // 注册element所有icon
 Object.keys(Icons).forEach((key) => {
-  instance?.appContext.app.component(key,(Icons as any)[key]);
+    instance?.appContext.app.component(key, (Icons as any)[key]);
 });
 const doneComponents = ref<IDoneComponent[]>([]);
 let select_component_info = ref({});//选中的组件
@@ -67,8 +67,8 @@ const handleCompont = (doneComponents: IDoneComponent[], type: Number) => {
 
 provide('select_component_info', select_component_info);
 provide('changeSelectedComponentInfo', changeSelectedComponentInfo);
-provide('deleteSelectCompont', deleteSelectCompont);
-provide('copySelectCompont', copySelectCompont);
+// provide('deleteSelectCompont', deleteSelectCompont);
+// provide('copySelectCompont', copySelectCompont);
 const leftBarFoldStatus = ref(true);
 const rightBarFoldStatus = ref(true);
 const dialogVisible = ref(false);
@@ -80,9 +80,78 @@ const changeRightBarFoldStatus = () => {
     rightBarFoldStatus.value = !rightBarFoldStatus.value;
 }
 const param_tabledata = ref<IParamEdit[]>([]);
+//右键菜单
+const contextMenuRef = ref<HTMLElement>();
+//显示右键菜单
+const display_contextmenu = ref(false);
+//右键菜单数据
+const contextmenu_data = reactive([{
+  name: "复制",
+  hotkey: "Ctrl+C",
+  enable: true,
+  fun: function () {
+    if (!this.enable) {
+      return;
+    }
+    copySelectCompont();
+    display_contextmenu.value = false;
+  }
+}, {
+  name: "删除",
+  hotkey: "Delete",
+  enable: false,
+  fun: function () {
+    if (!this.enable) {
+      return;
+    }
+    deleteSelectCompont();
+    display_contextmenu.value = false;
+  }
+}]);
+/**
+ * @description: 鼠标右键
+ * @param {*}
+ * @return {*}
+ */
+const contextmenuEvent = (e: MouseEvent) => {
+  e.preventDefault();
+  display_contextmenu.value = true;
+  (contextMenuRef.value as any).style.left = e.clientX + 'px';
+  (contextMenuRef.value as any).style.top = e.clientY + 'px';
+  contextmenu_data.map(m => m.enable = true);
+  //判断当前选中组件的index
+  //   if (svgLists.length === 1) {
+  //     //禁用下移
+  //     contextmenu_data[3].enable = false;
+  //     contextmenu_data[5].enable = false;
+  //     //禁用上移
+  //     contextmenu_data[2].enable = false;
+  //     contextmenu_data[4].enable = false;
+  //   }
+  //   else if (select_svg.index === 0) {
+  //     //禁用下移
+  //     contextmenu_data[3].enable = false;
+  //     contextmenu_data[5].enable = false;
+
+  //   }
+  //   else if (select_svg.index === svgLists.length - 1) {
+  //     //禁用上移
+  //     contextmenu_data[2].enable = false;
+  //     contextmenu_data[4].enable = false;
+  //   }
+
+}
+/**
+ * @description: 点击页面其他位置隐藏右键菜单
+ * @param {*}
+ * @return {*}
+ */
+const documentClickEvent = (e: MouseEvent) => {
+    display_contextmenu.value = false;
+}
 </script>
 <template>
-    <div>
+    <div @click="documentClickEvent">
         <el-container>
             <el-header class="top-el-header">
                 <top-bar
@@ -96,18 +165,21 @@ const param_tabledata = ref<IParamEdit[]>([]);
             </el-header>
             <el-container class="middle">
                 <el-aside class="side-nav" :class="leftBarFoldStatus ? 'show-nav' : 'hide-nav'">
-                    <left-nav :doneComponents="doneComponents" class="content-left"></left-nav>
+                    <left-nav class="content-left"></left-nav>
                 </el-aside>
                 <el-main class="middle main">
                     <el-scrollbar>
-                        <canvas-main class="canvas-main" :doneComponents="doneComponents"></canvas-main>
+                        <canvas-main class="canvas-main" :doneComponents="doneComponents" @contextmenuEvent="contextmenuEvent"></canvas-main>
                     </el-scrollbar>
                 </el-main>
                 <el-aside class="side-nav" :class="rightBarFoldStatus ? 'show-nav' : 'hide-nav'">
                     <right-nav class="content-right"></right-nav>
                 </el-aside>
             </el-container>
-            <el-footer class="bottom-el-footer flex-h flex-center">Copyright (c) 2022<el-link href="https://gitee.com/yaolunmao" style="margin-left: 10px;">咬轮猫</el-link></el-footer>
+            <el-footer class="bottom-el-footer flex-h flex-center">
+                Copyright (c) 2022
+                <el-link href="https://gitee.com/yaolunmao" style="margin-left: 10px;">咬轮猫</el-link>
+            </el-footer>
         </el-container>
         <el-dialog v-model="dialogVisible" title="变量编辑(开发中)" width="100%">
             <param-edit :paramTableData="param_tabledata"></param-edit>
@@ -124,6 +196,15 @@ const param_tabledata = ref<IParamEdit[]>([]);
                 :previewMode="true"
             ></render-component>
         </el-dialog>
+        <!-- 右键菜单 -->
+        <ul ref="contextMenuRef" class="contextMenu" v-show="display_contextmenu">
+            <li v-for="(item, index) in contextmenu_data" :key="index" @click="item.fun()">
+                <p :class="item.enable ? '' : 'disabled'">
+                    {{ item.name }}
+                    <span class="shortcut">{{ item.hotkey }}</span>
+                </p>
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -182,5 +263,50 @@ const param_tabledata = ref<IParamEdit[]>([]);
 .bottom-el-footer {
     box-shadow: 0px -1px 0px 0px #dfcfcf;
     margin-top: 1px;
+}
+.contextMenu {
+  position: absolute;
+  z-index: 99999;
+  background: #ffffff;
+  padding: 5px 0;
+  margin: 0px;
+  display: block;
+  border-radius: 5px;
+  box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.3);
+  li {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+  }
+  .shortcut {
+    width: 115px;
+    text-align: right;
+    float: right;
+  }
+  p {
+    text-decoration: none;
+    display: block;
+    padding: 0px 15px 1px 20px;
+    margin: 0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  p:hover {
+    background-color: #0cf;
+    color: #ffffff;
+    cursor: default;
+  }
+  .disabled {
+    color: #999;
+  }
+  .disabled:hover {
+    color: #999;
+    background-color: transparent;
+  }
+  li.separator {
+    border-top: solid 1px #e3e3e3;
+    padding-top: 5px;
+    margin-top: 5px;
+  }
 }
 </style>

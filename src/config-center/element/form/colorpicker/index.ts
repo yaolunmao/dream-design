@@ -110,5 +110,6 @@ export const D_ElColorPicker: IConfigComponentItem = {
           },
       },
     childrens: [],
+    compatibility:true
   },
 };

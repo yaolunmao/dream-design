@@ -136,6 +136,17 @@
                     <el-empty v-show="!select_component_info.eventAttr" description="该组件未设置任何事件"></el-empty>
                 </el-form>
             </el-collapse-item>
+            <el-collapse-item name="4">
+                <template #title>
+                    <div style="font-weight: bolder;font-style: italic;">特殊属性</div>
+                </template>
+                <el-form :label-position="labelPosition" label-width="90px" size="small">
+                    <!-- 如遇组件无法移动请开启兼容性开关，开启兼容性会修改dom导致组件样式发生变化，关闭兼容性开关可能会导致某些组件无法选中，需要从dom树选中组件 -->
+                    <el-form-item label="兼容性" title="关闭兼容性将与生成编程一致的dom树">
+                        <el-switch v-model="select_component_info.compatibility"></el-switch>
+                    </el-form-item>
+                </el-form>
+            </el-collapse-item>
         </el-collapse>
         <el-dialog
             v-model="customCssDialogVisible"
@@ -252,6 +263,19 @@ watch(global_event_checked, () => {
         }
     }
 });
+// const global_css_option = ref<IGloablCss[]>([]);
+// watch(global_css_checked, () => {
+//     if (select_component_info.value.classAttr == undefined) {
+//         select_component_info.value['classAttr'] = {
+//             global: []
+//         };
+//     }
+//     select_component_info.value.classAttr.global.length = 0;
+//     //这里是赋值而不是push是因为select_component_info.value.classAttr是ref
+//     select_component_info.value.classAttr.global = global_css_checked.value;
+// });
+// watch(select_component_info, () => {
+// });
 watch(select_component_info, () => {
     global_event_checked.length = 0;
     for (let item in select_component_info.value.eventAttr) {
@@ -264,10 +288,43 @@ watch(select_component_info, () => {
 
     }
 });
+//if (select_component_info.value.eventAttr) {
+// global_css_checked.value =objectDeepClone(select_component_info.value.classAttr?.global,[]);
+// global_event_checked.value =objectDeepClone(select_component_info.value.eventAttr);
 
+
+// });
+// watchEffect(() => {
+//     if (global_css_default != undefined) {
+//         global_css_option.value = global_css_default.value;
+//     }
+// })
+// const form_props = reactive({ data: {} });
 const handleChange = (val: string[]) => {
     // console.log(val)
 }
+
+// const store = useStore();
+
+
+// watch(form_props, () => {
+//     //去修改子组件监听那个变量
+//     store.dispatch('theModifiedSelectedComponentInfo', { ...form_props.data });
+// });
+// watchEffect(() => {
+//     form_props.data = { ...store.getters.selectedComponentInfo };
+// })
+// const form_props11 = computed({
+//     get: () => store.getters.theModifiedSelectedComponentInfo,
+//     set: val => {
+//         console.log(val);
+//     }
+// })
+// const formLabelAlign = reactive({
+//     name: '',
+//     region: '',
+//     type: '',
+// })
 </script>
 <style scoped lang="less">
 .item:hover {

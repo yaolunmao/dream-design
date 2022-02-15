@@ -68,5 +68,6 @@ export const D_ElScrollbar: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };

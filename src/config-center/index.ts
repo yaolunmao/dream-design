@@ -10,6 +10,8 @@ import { EchartsLineGroup } from "./echarts/line"; //折线图
 import { EchartsBarGroup } from "./echarts/bar"; //折线图
 import { EchartsPieGroup } from "./echarts/pie"; //饼图
 import { EchartsCustomGroup } from "./echarts/custom"; //自定义
+//原生组件
+import { NativeBasicGroup } from "./native/basic"; //原生
 //自定义组件
 import { CustomDataGroup } from "./custom/data"; //数据展示
 import {
@@ -57,6 +59,9 @@ const EchartsConfigCenter: IConfigComponentGroup[] = Object.seal([
   EchartsPieGroup,
   EchartsCustomGroup,
 ]);
+const NativeConfigCenter: IConfigComponentGroup[] = Object.seal([
+  NativeBasicGroup,
+]);
 const customConfigCenter: IConfigComponentGroup[] = Object.seal([
   CustomDataGroup,
 ]);
@@ -64,6 +69,7 @@ export const configCenter = {
   element: elementConfigCenter,
   antd: antdConfigCenter,
   EChart: EchartsConfigCenter,
+  原生: NativeConfigCenter,
   自定义: customConfigCenter,
 };
 //这么写是为了让别人引用编辑器组件的时候不用全局引入其它组件库
@@ -85,16 +91,16 @@ export const ComponentImport: IComponentImport = {
   "el-checkbox-group": ElCheckboxGroup,
   "el-color-picker": ElColorPicker,
   "el-date-picker": ElDatePicker,
-  "el-form":ElForm,
-  "el-form-item":ElFormItem,
-  "el-input":ElInput,
+  "el-form": ElForm,
+  "el-form-item": ElFormItem,
+  "el-input": ElInput,
   "v-chart": VChart,
   "basic-line-chart": BasicLineChart,
-  "stacked-line-chart":StackedLineChart,
-  "basic-bar-chart":BasicBarChart,
-  "horizontal-bar-chart":HorizontalBarChart,
-  "basic-pie-chart":BasicPieChart,
-  "doughnut-chart":DoughnutPieChart,
+  "stacked-line-chart": StackedLineChart,
+  "basic-bar-chart": BasicBarChart,
+  "horizontal-bar-chart": HorizontalBarChart,
+  "basic-pie-chart": BasicPieChart,
+  "doughnut-chart": DoughnutPieChart,
   "a-button": AButton,
   "custom-basic-table": CustomBasicTable,
 };

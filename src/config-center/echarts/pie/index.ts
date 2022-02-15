@@ -63,6 +63,7 @@ const D_EchartsBasicPie: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 const D_EchartsDoughnutPie: IConfigComponentItem = {
@@ -118,6 +119,7 @@ const D_EchartsDoughnutPie: IConfigComponentItem = {
       val: "",
     },
     childrens: [],
+    compatibility:true
   },
 };
 export const EchartsPieGroup: IConfigComponentGroup = {

@@ -182,5 +182,6 @@ export const D_ElInput: IConfigComponentItem = {
           },
       },
     childrens: [],
+    compatibility:true
   },
 };
