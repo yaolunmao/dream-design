@@ -16,13 +16,13 @@
                     </el-form-item>
                     <ext-props :select-component-info="select_component_info"></ext-props>
                     <el-form-item
-                        v-for="(val, key, i) in select_component_info.props"
+                        v-for="(val, key, i) in select_component_attr?.props"
                         :label="val.title"
                         :title="val.tips"
                         class="item"
                     >
                         <el-select
-                            v-model="val.default"
+                            v-model="select_component_info.props[key].default"
                             placeholder="Select"
                             v-if="val.type == ERightToolAttrType.Select"
                         >
@@ -35,14 +35,14 @@
                         </el-select>
                         <el-switch
                             v-else-if="val.type == ERightToolAttrType.Switch"
-                            v-model="val.default"
+                            v-model="select_component_info.props[key].default"
                         />
                         <el-color-picker
                             v-else-if="val.type == ERightToolAttrType.ColorPicker"
-                            v-model="val.default"
+                            v-model="select_component_info.props[key].default"
                         />
                         <el-radio-group
-                            v-model="val.default"
+                            v-model="select_component_info.props[key].default"
                             v-else-if="val.type == ERightToolAttrType.Radio"
                         >
                             <el-radio
@@ -51,11 +51,11 @@
                             >{{ item.label }}</el-radio>
                         </el-radio-group>
                         <el-input
-                            v-model="val.default"
+                            v-model="select_component_info.props[key].default"
                             v-else-if="val.type == ERightToolAttrType.Input"
                         ></el-input>
                         <el-input-number
-                            v-model="val.default"
+                            v-model="select_component_info.props[key].default"
                             v-else-if="val.type == ERightToolAttrType.InputNumber"
                         ></el-input-number>
                         <json-code-edit
@@ -65,6 +65,7 @@
                         ></json-code-edit>
                         <config-edit
                             :select-component-info="select_component_info"
+                            :select_component_attr="select_component_attr"
                             :_-key="(key as string)"
                             v-else-if="val.type == ERightToolAttrType.ConfigEdit"
                         ></config-edit>
@@ -191,12 +192,12 @@
     </el-scrollbar>
 </template>
 <script lang="ts" setup>
-import { ref, reactive, computed, watch, watchEffect, inject, Ref } from 'vue'
+import { ref, reactive, computed, watch, watchEffect, inject, Ref, PropType } from 'vue'
 // import { useStore } from 'vuex';
 // import { IStoreDoneComponent } from '../../store/model';
 
 
-import { ERightToolAttrType, IDoneComponent, IEventAttr, IGloablCss, IGloablEvent } from '../../../model/model';
+import { ERightToolAttrType, IConfigComponentItemInfo, IDoneComponent, IEventAttr, IGloablCss, IGloablEvent } from '../../../model/model';
 import { Edit } from '@element-plus/icons-vue'
 import { ElSwitch, ElCheckbox, ElDialog, ElButton, ElScrollbar, ElEmpty, ElCollapseItem, ElCollapse, ElForm, ElInput, ElRadio, ElSelect, ElRadioGroup, ElFormItem, ElOption, ElInputNumber, ElColorPicker } from "element-plus";
 import ExtProps from './ext-props.vue';
@@ -209,7 +210,12 @@ import ConfigEdit from './config-edit.vue';
 const select_component_info = inject('select_component_info') as Ref<IDoneComponent>;
 const global_css_default = inject<IGloablCss[]>('global_css_default');
 const global_event_default = inject<IGloablEvent[]>('global_event_default');
-
+const props = defineProps({
+    globalConfig: {
+        type: Array as PropType<IConfigComponentItemInfo[]>,
+        default: []
+    }
+});
 //选中的css
 const global_css_checked = computed({
     get: () => select_component_info.value.classAttr?.global ?? [],
@@ -253,6 +259,9 @@ const editCustomEvent = (key: string, anonymous_params: string[]) => {
     event_key.value = key;
     event_anonymous_params.value = anonymous_params;
 }
+const select_component_attr = computed(() =>
+    props.globalConfig.find(f => f.tag == select_component_info.value.tag)
+);
 watch(global_event_checked, () => {
     //改变当前已选中的全局函数
     for (let i = 0; i < global_event_checked.length; i++) {

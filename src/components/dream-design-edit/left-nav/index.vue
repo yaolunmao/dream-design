@@ -41,17 +41,18 @@
 import { ref } from 'vue';
 import { configCenter } from '../../../config-center';
 import draggable from 'vuedraggable/src/vuedraggable';
-import { IConfigComponentGroup, IConfigComponentItem, IConfigComponentItemInfo, IDoneComponent } from '../../../model/model';
+import { IConfigComponentGroup, IConfigComponentItem, IConfigComponentItemInfo, IConfigComponentItemProps, IDoneComponent, IDoneComponentProps } from '../../../model/model';
 import { ElSelect, ElOption, ElCollapse, ElCollapseItem, ElIcon } from "element-plus";
 import SvgIcon from "../../svg-icon/index.vue";
 import { objectDeepClone, randomString } from '../../../utils';
 // import { useStore } from 'vuex';
 // import { IStoreDoneComponent } from '../../store/model';
+const emit = defineEmits(['setGlobalConfig']);
 const select_lib = ref('element');
 const config_center = ref<IConfigComponentGroup[]>(configCenter.element);
 // const store = useStore();
 // store.dispatch('changeConfigComponentGroup', config_center.value);
-const activeNames = ref(['layout', 'basic','data','form','line','bar','pie','echartscustom'])
+const activeNames = ref(['layout', 'basic', 'data', 'form', 'line', 'bar', 'pie', 'echartscustom'])
 const handleChange = (val: string[]) => {
   // console.log(val)
 }
@@ -59,6 +60,19 @@ const libChange = (val: any) => {
   config_center.value = val;
   // store.dispatch('changeConfigComponentGroup', config_center.value);
 }
+const setGlobalConfig = () => {
+  let temp: IConfigComponentItemInfo[] = [];
+  for (let key in configCenter) {
+    configCenter[key].forEach(f => {
+      f.list.forEach(fl => {
+        temp.push({ ...fl.domInfo });
+      })
+    });
+  }
+  emit('setGlobalConfig',temp)
+  console.log(temp);
+}
+setGlobalConfig();
 /**
  * 判断是否可以移动 主要是为了让左侧的工具栏不动
  * @param e 
@@ -76,21 +90,30 @@ const checkMove = (e: any) => {
 const handleConfigChildrens = (childrens: IConfigComponentItemInfo[]) => {
   let temp: IDoneComponent[] = [];
   childrens.forEach(children => {
-    const { childrens, ...temp_params } = children;
+    const { childrens,props,...temp_params } = children;
     temp.push({
       id: temp_params.tag + '-' + randomString(),
       childrens: handleConfigChildrens(childrens),
+      props:handleConfigProps(props),
       ...temp_params,
     });
   });
   return temp;
 };
+const handleConfigProps = (props: IConfigComponentItemProps) => {
+  let temp: IDoneComponentProps = {};
+  for (let key in props) {
+    temp = { ...temp, ...{ [key]: { default: props[key].default,config: props[key].config} } }
+  }
+  return temp;
+}
 const setCloneData = (e: IConfigComponentItem) => {
-  const { childrens, ...component_info } = e.domInfo;
+  const { childrens, props, ...component_info } = e.domInfo;
   //将组件默认属性处理为完成组件的格式
   const doneComponent: IDoneComponent = {
     id: e.domInfo.tag + '-' + randomString(),
     childrens: handleConfigChildrens(e.domInfo.childrens),
+    props: handleConfigProps(props),
     ...component_info
   }
   //这个数据就是完成组件的格式

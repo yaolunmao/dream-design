@@ -1,6 +1,6 @@
 <!-- 编辑器组件 -->
 <script setup lang="ts">
-import { ref, provide, reactive, readonly, pushScopeId, getCurrentInstance } from 'vue';
+import { ref, provide, reactive, readonly, watch, getCurrentInstance } from 'vue';
 import "element-plus/dist/index.css";
 import 'ant-design-vue/dist/antd.css';
 import LeftNav from './left-nav/index.vue';
@@ -8,10 +8,9 @@ import CanvasMain from './canvas-main/index.vue';
 import TopBar from './top-bar/index.vue';
 import RightNav from './right-nav/index.vue';
 import ParamEdit from './param_edit/index.vue';
-import { IDoneComponent, IParamEdit } from '../../model/model';
+import { IConfigComponentItemInfo, IDoneComponent, IParamEdit } from '../../model/model';
 import { ElContainer, ElHeader, ElAside, ElFooter, ElMain, ElScrollbar, ElLink, ElOption, ElDialog, ElButton } from "element-plus";
 import 'virtual:svg-icons-register';
-import RenderComponent from './render-component/index.vue';
 import { objectDeepClone, randomString } from '../../utils';
 import * as Icons from "@element-plus/icons-vue";
 import { ComponentImport } from "../../config-center";
@@ -73,11 +72,33 @@ const leftBarFoldStatus = ref(true);
 const rightBarFoldStatus = ref(true);
 const dialogVisible = ref(false);
 const previewDialogVisible = ref(false);
+const global_config = ref<IConfigComponentItemInfo[]>([]);
 const changeLeftBarFoldStatus = () => {
     leftBarFoldStatus.value = !leftBarFoldStatus.value;
 }
 const changeRightBarFoldStatus = () => {
     rightBarFoldStatus.value = !rightBarFoldStatus.value;
+}
+const layout = reactive({
+    scroll: "elscrooll-pc",
+    canvas: "canvas-main-pc"
+});
+const changeLayout = (select_layout_type: string) => {
+    if (select_layout_type == 'pc') {
+        layout.scroll = 'elscrooll-pc';
+        layout.canvas = 'canvas-main-pc';
+    }
+    else if (select_layout_type == 'pad') {
+        layout.scroll = 'elscrooll-pad';
+        layout.canvas = 'canvas-main-pad';
+    }
+    else if (select_layout_type == 'h5') {
+        layout.scroll = 'elscrooll-h5';
+        layout.canvas = 'canvas-main-h5';
+    }
+}
+const setGlobalConfig = (config: IConfigComponentItemInfo[]) => {
+    global_config.value = config;
 }
 const param_tabledata = ref<IParamEdit[]>([]);
 //右键菜单
@@ -86,27 +107,27 @@ const contextMenuRef = ref<HTMLElement>();
 const display_contextmenu = ref(false);
 //右键菜单数据
 const contextmenu_data = reactive([{
-  name: "复制",
-  hotkey: "Ctrl+C",
-  enable: true,
-  fun: function () {
-    if (!this.enable) {
-      return;
+    name: "复制",
+    hotkey: "Ctrl+C",
+    enable: true,
+    fun: function () {
+        if (!this.enable) {
+            return;
+        }
+        copySelectCompont();
+        display_contextmenu.value = false;
     }
-    copySelectCompont();
-    display_contextmenu.value = false;
-  }
 }, {
-  name: "删除",
-  hotkey: "Delete",
-  enable: false,
-  fun: function () {
-    if (!this.enable) {
-      return;
+    name: "删除",
+    hotkey: "Delete",
+    enable: false,
+    fun: function () {
+        if (!this.enable) {
+            return;
+        }
+        deleteSelectCompont();
+        display_contextmenu.value = false;
     }
-    deleteSelectCompont();
-    display_contextmenu.value = false;
-  }
 }]);
 /**
  * @description: 鼠标右键
@@ -114,31 +135,31 @@ const contextmenu_data = reactive([{
  * @return {*}
  */
 const contextmenuEvent = (e: MouseEvent) => {
-  e.preventDefault();
-  display_contextmenu.value = true;
-  (contextMenuRef.value as any).style.left = e.clientX + 'px';
-  (contextMenuRef.value as any).style.top = e.clientY + 'px';
-  contextmenu_data.map(m => m.enable = true);
-  //判断当前选中组件的index
-  //   if (svgLists.length === 1) {
-  //     //禁用下移
-  //     contextmenu_data[3].enable = false;
-  //     contextmenu_data[5].enable = false;
-  //     //禁用上移
-  //     contextmenu_data[2].enable = false;
-  //     contextmenu_data[4].enable = false;
-  //   }
-  //   else if (select_svg.index === 0) {
-  //     //禁用下移
-  //     contextmenu_data[3].enable = false;
-  //     contextmenu_data[5].enable = false;
+    e.preventDefault();
+    display_contextmenu.value = true;
+    (contextMenuRef.value as any).style.left = e.clientX + 'px';
+    (contextMenuRef.value as any).style.top = e.clientY + 'px';
+    contextmenu_data.map(m => m.enable = true);
+    //判断当前选中组件的index
+    //   if (svgLists.length === 1) {
+    //     //禁用下移
+    //     contextmenu_data[3].enable = false;
+    //     contextmenu_data[5].enable = false;
+    //     //禁用上移
+    //     contextmenu_data[2].enable = false;
+    //     contextmenu_data[4].enable = false;
+    //   }
+    //   else if (select_svg.index === 0) {
+    //     //禁用下移
+    //     contextmenu_data[3].enable = false;
+    //     contextmenu_data[5].enable = false;
 
-  //   }
-  //   else if (select_svg.index === svgLists.length - 1) {
-  //     //禁用上移
-  //     contextmenu_data[2].enable = false;
-  //     contextmenu_data[4].enable = false;
-  //   }
+    //   }
+    //   else if (select_svg.index === svgLists.length - 1) {
+    //     //禁用上移
+    //     contextmenu_data[2].enable = false;
+    //     contextmenu_data[4].enable = false;
+    //   }
 
 }
 /**
@@ -161,19 +182,28 @@ const documentClickEvent = (e: MouseEvent) => {
                     @changeRightBarFoldStatus="changeRightBarFoldStatus"
                     @topParamBtnClick="dialogVisible = true"
                     @topPreviewBtnClick="previewDialogVisible = true"
+                    @changeLayout="changeLayout"
+                    @clearData="doneComponents = []"
                 ></top-bar>
             </el-header>
             <el-container class="middle">
                 <el-aside class="side-nav" :class="leftBarFoldStatus ? 'show-nav' : 'hide-nav'">
-                    <left-nav class="content-left"></left-nav>
+                    <left-nav class="content-left" @setGlobalConfig="setGlobalConfig"></left-nav>
                 </el-aside>
                 <el-main class="middle main">
-                    <el-scrollbar>
-                        <canvas-main class="canvas-main" :doneComponents="doneComponents" @contextmenuEvent="contextmenuEvent"></canvas-main>
+                    <el-scrollbar :class="layout.scroll">
+                        <div>
+                            <canvas-main
+                                :class="layout.canvas"
+                                :doneComponents="doneComponents"
+                                @contextmenuEvent="contextmenuEvent"
+                                style="padding: 2px;"
+                            ></canvas-main>
+                        </div>
                     </el-scrollbar>
                 </el-main>
                 <el-aside class="side-nav" :class="rightBarFoldStatus ? 'show-nav' : 'hide-nav'">
-                    <right-nav class="content-right"></right-nav>
+                    <right-nav class="content-right" :globalConfig="global_config"></right-nav>
                 </el-aside>
             </el-container>
             <el-footer class="bottom-el-footer flex-h flex-center">
@@ -190,11 +220,14 @@ const documentClickEvent = (e: MouseEvent) => {
             </template>
         </el-dialog>
         <el-dialog v-model="previewDialogVisible" title="预览" width="100%">
-            <render-component
-                v-for="item in doneComponents"
-                :leftDragDomInfo="item"
-                :previewMode="true"
-            ></render-component>
+            <div>
+                <canvas-main
+                    :doneComponents="doneComponents"
+                    :class="layout.canvas"
+                    @contextmenuEvent="contextmenuEvent"
+                    :previewMode="true"
+                ></canvas-main>
+            </div>
         </el-dialog>
         <!-- 右键菜单 -->
         <ul ref="contextMenuRef" class="contextMenu" v-show="display_contextmenu">
@@ -248,9 +281,6 @@ const documentClickEvent = (e: MouseEvent) => {
             max-width: @hideLeftNavWidth;
         }
     }
-    .canvas-main {
-        min-height: calc(100vh - (@headerHeight + @buttomHeight));
-    }
 }
 .top-el-header {
     display: flex;
@@ -265,48 +295,78 @@ const documentClickEvent = (e: MouseEvent) => {
     margin-top: 1px;
 }
 .contextMenu {
-  position: absolute;
-  z-index: 99999;
-  background: #ffffff;
-  padding: 5px 0;
-  margin: 0px;
-  display: block;
-  border-radius: 5px;
-  box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.3);
-  li {
-    list-style: none;
-    padding: 0px;
+    position: absolute;
+    z-index: 99999;
+    background: #ffffff;
+    padding: 5px 0;
     margin: 0px;
-  }
-  .shortcut {
-    width: 115px;
-    text-align: right;
-    float: right;
-  }
-  p {
-    text-decoration: none;
     display: block;
-    padding: 0px 15px 1px 20px;
-    margin: 0;
-    user-select: none;
-    -webkit-user-select: none;
-  }
-  p:hover {
-    background-color: #0cf;
-    color: #ffffff;
-    cursor: default;
-  }
-  .disabled {
-    color: #999;
-  }
-  .disabled:hover {
-    color: #999;
-    background-color: transparent;
-  }
-  li.separator {
-    border-top: solid 1px #e3e3e3;
-    padding-top: 5px;
-    margin-top: 5px;
-  }
+    border-radius: 5px;
+    box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.3);
+    li {
+        list-style: none;
+        padding: 0px;
+        margin: 0px;
+    }
+    .shortcut {
+        width: 115px;
+        text-align: right;
+        float: right;
+    }
+    p {
+        text-decoration: none;
+        display: block;
+        padding: 0px 15px 1px 20px;
+        margin: 0;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+    p:hover {
+        background-color: #0cf;
+        color: #ffffff;
+        cursor: default;
+    }
+    .disabled {
+        color: #999;
+    }
+    .disabled:hover {
+        color: #999;
+        background-color: transparent;
+    }
+    li.separator {
+        border-top: solid 1px #e3e3e3;
+        padding-top: 5px;
+        margin-top: 5px;
+    }
+}
+</style>
+<style lang="less">
+@headerHeight: 60px;
+@buttomHeight: 60px;
+.elscrooll-pc {
+    height: calc(100vh - (@headerHeight + @buttomHeight));
+}
+.canvas-main-pc {
+    min-height: calc(100vh - (@headerHeight + @buttomHeight));
+    width: 100%;
+    margin: 0 auto;
+}
+.elscrooll-pad {
+    height: 1024px;
+}
+.canvas-main-pad {
+    width: 768px;
+    min-height: 1024px;
+    margin: 0px auto;
+    box-shadow: 0 0px 10px 4px #d6d8db;
+}
+.elscrooll-h5 {
+    height: 844px;
+}
+.canvas-main-h5 {
+    width: 390px;
+    min-height: 844px;
+    margin: 0px auto;
+    box-shadow: 0 0px 10px 4px #d6d8db;
 }
 </style>

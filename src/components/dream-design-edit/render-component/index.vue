@@ -175,12 +175,13 @@ watchEffect(() => {
         @click.stop="selectedComponentEvent(props.leftDragDomInfo)"
         @contextmenu.stop="contextmenuEvent(props.leftDragDomInfo,$event)"
         v-else-if="!props.leftDragDomInfo.compatibility && props.leftDragDomInfo.slots"
-        :class="`${props.leftDragDomInfo.childrens.length > 0 && !props.previewMode ? '' : 'default-slot'} ${!props.previewMode ? 'container' : ''} ${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
+        :class="`${props.leftDragDomInfo.childrens.length > 0 || props.previewMode ? '' : 'default-slot'} ${!props.previewMode ? 'container' : ''} ${props.leftDragDomInfo.canMove && !props.previewMode ? 'can-move' : 'not-move'} ${select_component_info?.id == props.leftDragDomInfo.id && !props.previewMode ? 'select-component' : ''}`"
         :group="props.leftDragDomInfo.canAllowTo ? 'design-group' : props.leftDragDomInfo.id"
         item-key="id"
         ghost-class="ghost"
         :tag="props.leftDragDomInfo.tag"
         :style="css_style"
+        handle=".can-move"
     >
         <template #item="{ element }">
             <index :leftDragDomInfo="element" :preview-mode="props.previewMode" @contextmenuEvent="(e:MouseEvent) => emit('contextmenuEvent',e)"></index>
@@ -245,9 +246,9 @@ watchEffect(() => {
 </template>
 <style scoped lang="less">
 @import "../../../assets/global.module";
-.default-slot {
-    width: -webkit-fill-available;
-}
+// .default-slot {
+//     width: -webkit-fill-available;
+// }
 .fill {
     width: -webkit-fill-available;
 }
@@ -260,8 +261,8 @@ watchEffect(() => {
     display: contents;
 }
 .container {
-    border: 1px dashed #cccccc;
-    padding: 5px;
+    outline: 1px dashed #cccccc;
+    padding: 2px;
 }
 .can-move {
     cursor: move !important;
@@ -273,7 +274,8 @@ watchEffect(() => {
     cursor: pointer;
 }
 .select-component {
-    background-color: rgb(219, 238, 255);
+    // background-color: rgb(219, 238, 255);
+    outline: 2px solid #99bff5;
 }
 .compatibility {
     display: inline-block;

@@ -1,7 +1,6 @@
 <!-- 中间画布 -->
 <template>
     <draggable
-      style="width: 100%;height: 100%;"
       handle=".can-move"
       :list="props.doneComponents"
       group="design-group"
@@ -10,7 +9,7 @@
       ghost-class="ghost"
     >
       <template #item="{ element }">
-        <render-component :leftDragDomInfo="element" @contextmenuEvent="(e:MouseEvent) => emit('contextmenuEvent',e)"></render-component>
+        <render-component :leftDragDomInfo="element" @contextmenuEvent="(e:MouseEvent) => emit('contextmenuEvent',e)" :previewMode="props.previewMode"></render-component>
       </template>
     </draggable>
 </template>
@@ -26,10 +25,15 @@ const props = defineProps({
   doneComponents: {
     type: Object as PropType<IDoneComponent[]>,
     default: []
-  }
+  },
+    //是否为预览模式
+    previewMode: {
+        type: Boolean,
+        default: false
+    }
 });
 const emit = defineEmits(['contextmenuEvent']);
-const select_component_info = inject<IDoneComponent>('select_component_info');
+// const select_component_info = inject<IDoneComponent>('select_component_info');
 // const deleteSelectCompont = inject<(evt: MouseEvent) => any>('deleteSelectCompont');
 // const copySelectCompont = inject<(evt: MouseEvent) => any>('copySelectCompont');
 // const store = useStore();

@@ -65,7 +65,7 @@ const NativeConfigCenter: IConfigComponentGroup[] = Object.seal([
 const customConfigCenter: IConfigComponentGroup[] = Object.seal([
   CustomDataGroup,
 ]);
-export const configCenter = {
+export const configCenter:{[key:string]:IConfigComponentGroup[]} = {
   element: elementConfigCenter,
   antd: antdConfigCenter,
   EChart: EchartsConfigCenter,
